@@ -71,6 +71,28 @@ export async function createPerk(req, res, next) {
 // Update an existing perk by ID and validate only the fields that are being updated 
 export async function updatePerk(req, res, next) {
   
+  try {
+
+    const { Perk_Data_To_Update, error} = perkSchema.validate(req.body);
+
+    if (error) 
+      return res.status(400).json({ message: error.message });
+
+    const Updated_Perk = await Perk.findByIdAndUpdate(req.params.id, Perk_Data_To_Update, {new: true});
+
+    return Updated_Perk ? res.status(200).json({ perk: Updated_Perk }) : res.status(404).json({ message: 'Perk not found' });
+  }
+
+  catch (error) {
+
+    if (error.name === 'ValidationError') {
+      console.error('Validation Error:', error.message);
+    } else {
+      console.error('Error updating perk:', error);
+    }
+    next(error);
+  }
+
 }
 
 
